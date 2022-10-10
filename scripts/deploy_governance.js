@@ -85,8 +85,6 @@ async function main() {
   console.log("Governance contract address:", governance.address);
 
   // deploy treasury contract
-  const funds = ethers.utils.parseEther("0.0001");
-  console.log("funds", funds);
 
   const Treasury = await ethers.getContractFactory("Treasury");
   const treasury = await Treasury.deploy();
@@ -113,14 +111,14 @@ async function main() {
     governance.address,
   );
   grantProposerRole.wait();
-  console.log("grant proposer role", grantProposerRole);
+  console.log("grant proposer role hash", grantProposerRole.hash);
 
   let grantExecutorRole = await timelock.grantRole(
     executorRole,
     governance.address
   );
   grantExecutorRole.wait();
-  console.log("grant executor role", grantExecutorRole);
+  console.log("grant executor role", grantExecutorRole.hash);
 }
 
 main()
