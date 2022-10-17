@@ -67,9 +67,9 @@ async function main() {
   console.log("Timelock contract address", timelock.address);
 
   // deploy governance contract
-  const quorum = 5; // Percentage of total supply of tokens needed to aprove proposals (5%)
-  const votingDelay = 1; // How many blocks after proposal until voting becomes active
-  const votingPeriod = 50; // How many blocks to allow voters to vote
+  const quorum = 4; // Percentage of total supply of tokens needed to aprove proposals (5%)
+  const votingDelay = 10; // How many blocks after proposal until voting becomes active
+  const votingPeriod = 1000; // How many blocks to allow voters to vote
 
   const Governance = await ethers.getContractFactory("Governance");
   const governance = await Governance.deploy(
