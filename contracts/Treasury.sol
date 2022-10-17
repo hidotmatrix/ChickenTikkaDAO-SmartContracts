@@ -23,5 +23,17 @@ contract Treasury is Ownable, ERC721Holder {
           IERC20(_tokenAddresses[i]).transferFrom(address(this), _recepient , _amounts[i]);
         }
     }
+    // Function to withdraw all Ether from this contract.
+    function withdrawFunds(uint256 _amount) external onlyOwner {
+        // get the amount of Ether stored in this contract
+        uint256 amount = address(this).balance;
+        require(_amount <= amount, "Bridge Contract don't have enough funds");
+        // send all Ether to owner
+        // Owner can receive Ether since the address of owner is payable
+
+        (bool success, ) = payable(owner()).call{value: _amount}("");
+        require(success, "Failed to send Ether to owner");
+
+    }
 
 }
