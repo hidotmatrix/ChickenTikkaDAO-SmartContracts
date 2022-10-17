@@ -56,7 +56,7 @@ contract Governance is
         uint256 _votingDelay,
         uint256 _votingPeriod
     )
-        Governor("DApp University DAO")
+        Governor("RaspBerry DAO")
         GovernorVotes(_token)
         GovernorVotesQuorumFraction(_quorum)
         GovernorTimelockControl(_timelock)

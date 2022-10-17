@@ -2,21 +2,21 @@ const { Wallet } = require("ethers");
 require("ethers");
 require("dotenv").config();
 
-const signer = new Wallet(process.env.REACT_APP_DEPLOYER_PRIV_KEY);
+const signer = new Wallet(process.env.DEPLOYER_PRIV_KEY);
 const signerAddress = signer.address;
-const participant_1 = process.env.REACT_APP_PARTICIPANT_1;
-const participant_2 = process.env.REACT_APP_PARTICIPANT_2;
-const participant_3 = process.env.REACT_APP_PARTICIPANT_3;
-const participant_4 = process.env.REACT_APP_PARTICIPANT_4;
-const participant_5 = process.env.REACT_APP_PARTICIPANT_5;
+const participant_1 = process.env.DAO_PARTICIPANT_1;
+const participant_2 = process.env.DAO_PARTICIPANT_2;
+const participant_3 = process.env.DAO_PARTICIPANT_3;
+const participant_4 = process.env.DAO_PARTICIPANT_4;
+const participant_5 = process.env.DAO_PARTICIPANT_5;
 
 async function main() {
   // deploy token contract
   const Token = await ethers.getContractFactory("Token");
 
   // constructor args for token contract
-  const tokenName = "Governance Token";
-  const tokenSymbol = "GVNT";
+  const tokenName = "RaspBerry DAO Governance Token";
+  const tokenSymbol = "RDGT";
   const initialSupply = ethers.utils.parseEther("100000");
   const token = await Token.deploy(tokenName, tokenSymbol, initialSupply);
 
@@ -26,7 +26,7 @@ async function main() {
 
   // transfer some initial tokens to participants
   // this can be managed using a exchange to provide utility token
-  const amountToTransferInParticipantWallet = ethers.utils.parseEther("1500");
+  const amountToTransferInParticipantWallet = ethers.utils.parseEther("20000");
   const transfer_1 = await token.transfer(
     participant_1,
     amountToTransferInParticipantWallet
@@ -58,8 +58,8 @@ async function main() {
   const Timelock = await ethers.getContractFactory("TimeLock");
   const timelock = await Timelock.deploy(
     minDelay,
-    [signerAddress],
-    [signerAddress]
+    [participant_1,participant_2,participant_3,participant_4,participant_5],
+    [participant_1,participant_2,participant_3,participant_4,participant_5]
   );
 
   console.log("Deploying Timelock contract...");
@@ -69,7 +69,7 @@ async function main() {
   // deploy governance contract
   const quorum = 5; // Percentage of total supply of tokens needed to aprove proposals (5%)
   const votingDelay = 1; // How many blocks after proposal until voting becomes active
-  const votingPeriod = 25; // How many blocks to allow voters to vote
+  const votingPeriod = 50; // How many blocks to allow voters to vote
 
   const Governance = await ethers.getContractFactory("Governance");
   const governance = await Governance.deploy(
@@ -89,15 +89,15 @@ async function main() {
   console.log("funds", funds);
 
   const Treasury = await ethers.getContractFactory("Treasury");
-  const treasury = await Treasury.deploy(signerAddress, { value: funds });
+  const treasury = await Treasury.deploy();
 
   console.log("Deploying treasury contract...");
   await treasury.deployed();
   console.log("Treasury contract address:", treasury.address);
 
-  // transfer treasury ownership to executor
-  let treasuryOwnership = await treasury.transferOwnership(timelock.address);
-  await treasuryOwnership.wait();
+  // transfer treasury ownership to timelock contract
+  let treasuryOwnershipTransfertx = await treasury.transferOwnership(timelock.address);
+  await treasuryOwnershipTransfertx.wait();
 
   // Assign roles
   const proposerRole = await timelock.PROPOSER_ROLE();
@@ -110,7 +110,7 @@ async function main() {
 
   let grantProposerRole = await timelock.grantRole(
     proposerRole,
-    governance.address
+    governance.address,
   );
   grantProposerRole.wait();
   console.log("grant proposer role", grantProposerRole);
